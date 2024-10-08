@@ -41,3 +41,6 @@ if __name__ == '__main__':
 
 # האם צריך גם וגם client, db
 # עבור כל גישה למסד הנתונים try, except ואם יש שגיאה לודא שהמסד נסגר
+# TODO: run on docker
+# TODO: make full CRUD
+# TODO: add models
