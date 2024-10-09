@@ -7,9 +7,9 @@ post_bp = Blueprint('post', __name__)
 @post_bp.route('/posts/')
 def get_posts():
     users = get_all_posts()
-    return jsonify(users), 201 if users else {'mes': 'not found'}, 404
+    return jsonify(users), 201 if users else  400
 
 @post_bp.route('/posts/<int:user_id>', methods=['GET'])
 def get_posts_by_id(user_id):
     posts = get_posts_by_user_id(user_id)
-    return jsonify(posts), 201 if posts else {'mes': 'not found'}, 404
+    return jsonify(posts), 201 if posts else  404

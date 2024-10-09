@@ -7,4 +7,4 @@ user_bp = Blueprint('user', __name__)
 def get_users():
     # TODO: להכניס לקובץ HTML יפה
     users = get_all_users()
-    return jsonify(users), 201 if users else {'mes': 'not found'}, 404
+    return jsonify(users), 201 if users else 404
