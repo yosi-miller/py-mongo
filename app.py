@@ -1,6 +1,8 @@
-from flask import Flask, render_template_string, render_template
+from flask import Flask, render_template
 import logging
-from configuration_db import insert_data_if_empty
+
+from repository.csv_repository import init_taxi_drivers_from_csv
+from repository.insert_data_db import insert_data_if_empty
 from routes.post_route import post_bp
 from routes.user_route import user_bp
 
@@ -18,6 +20,7 @@ app.register_blueprint(post_bp)
 
 insert_data_if_empty('users', 'users')
 insert_data_if_empty('posts', 'posts')
+init_taxi_drivers_from_csv()
 
 @app.route('/home')
 def home():

@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify
-from configuration_db import get_db
 from services.posts_server import get_all_posts, get_posts_by_user_id
 
 post_bp = Blueprint('post', __name__)

@@ -1,20 +1,12 @@
-from pymongo import MongoClient, errors
+from pymongo import errors
 
-from api import get_data_from_api
+from database.connect import get_db
+from repository.api import get_data_from_api
 from services.logger import log_error, log_info
 
 
-def get_db():
-    """
-    connect to local MongoDb
-    :return:
-    """
-    client = MongoClient('localhost', 27017)
-    db = client.pymongo # create database
-    return client, db
-
-
 def insert_data_if_empty(collection_name, api_url):
+    # TODO: לחלק ל2 פונקציות
     client, db = get_db()
     collection = db[collection_name]
     if collection.count_documents({}) == 0:

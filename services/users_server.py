@@ -1,4 +1,4 @@
-from configuration_db import get_db
+from repository.insert_data_db import get_db
 from services.logger import log_info, log_error
 
 
