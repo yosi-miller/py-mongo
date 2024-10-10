@@ -10,17 +10,15 @@ def parse_date(date_str: str):
 def injuries_info(row):
     injuries = {
         'total': row['INJURIES_TOTAL'],
-        'injuries_status': {
-            'fatal': row['INJURIES_FATAL'],
-            'incapacitating': row['INJURIES_INCAPACITATING'],
-            'non_incapacitating': row['INJURIES_NON_INCAPACITATING']
-        }
+        'fatal': row['INJURIES_FATAL'],
+        'incapacitating': row['INJURIES_INCAPACITATING'],
+        'non_incapacitating': row['INJURIES_NON_INCAPACITATING']
     }
 
     return injuries
 
 
-def crash_document(row, injuries_info_id):
+def crash_document(row, injuries_info):
     crash_cause = {
         'prim': row['PRIM_CONTRIBUTORY_CAUSE'],
         'sec': row['SEC_CONTRIBUTORY_CAUSE']
@@ -32,7 +30,7 @@ def crash_document(row, injuries_info_id):
         'day_of_week': row['CRASH_DAY_OF_WEEK'],
         'month': row['CRASH_MONTH'],
         'crash_cause': crash_cause,
-        'injuries_info': injuries_info_id
+        'injuries_info': injuries_info
     }
 
     return crash
