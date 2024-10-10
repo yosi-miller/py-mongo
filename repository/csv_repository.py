@@ -16,6 +16,7 @@ def init_crash_information_from_csv():
     """
     Initializes crash information from CSV file to MongoDB collection.
     """
+
     client, db = get_db()
 
     collection = db['crash information']
