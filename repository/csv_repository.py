@@ -24,6 +24,8 @@ def init_crash_information_from_csv():
 
     if crash_collection.count_documents({}) == 0:
         try:
+            log_info(f'action: started insert crashs information to db')
+
             for row in read_csv('data/Traffic_Crashes_-_Crashes - 20k rows.csv'):
                 injuries_document = injuries_info(row)
 
@@ -44,7 +46,7 @@ def init_crash_information_from_csv():
         finally:
             client.close()
 
-
+# TODO: לסדר בקובץ נפרד
 def create_index(crash_collection, injuries_collection):
     # create a new index for the crash document and injustice document
     crash_collection.create_index('crash_cause')
@@ -53,3 +55,21 @@ def create_index(crash_collection, injuries_collection):
     injuries_collection.create_index('total')
     injuries_collection.create_index('injuries_status')
     log_info(f'action: completed create indexes for crashs and injuries collections')
+
+
+
+def main():
+    csv_path = 'C:\\Users\y0504\Desktop\Week 5(10-10)\data\Traffic_Crashes_-_Crashes - 20k rows.csv'
+    csv_reader = read_csv(csv_path)
+    print( csv_reader)
+    # Retrieve and print the first row from the generator
+    first_row = next(csv_reader, None)
+    print( first_row)
+    if first_row:
+        print(first_row)
+    else:
+        print("CSV file is empty or no rows available.")
+
+
+if __name__ == '__main__':
+    main()
