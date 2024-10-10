@@ -49,6 +49,7 @@ def create_index(crash_collection):
     crash_collection.create_index('crash_cause')
     crash_collection.create_index('beat')
     crash_collection.create_index('date')
+    crash_collection.create_index('injuries_info')
     log_info(f'action: completed create indexes for crashs')
 
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from services.posts_server import find_crash_by_area, find_crash_by_area_and_season, find_crash_by_group, find_injuries_statistics
+from services.crash_server import find_crash_by_area, find_crash_by_area_and_season, find_crash_by_group, find_injuries_statistics
 
 crash_bp = Blueprint('post', __name__, url_prefix='/crash')
 
@@ -20,9 +20,9 @@ def get_crash_by_group(area):
     return jsonify(posts), 201 if posts else 404
 
 #  Statistics on injuries
-@crash_bp.route('/injuries_statistics/', methods=['GET'])
-def get_injuries_statistics():
-    stats = find_injuries_statistics()
+@crash_bp.route('/injuries_statistics/<string:area>/', methods=['GET'])
+def get_injuries_statistics(area):
+    stats = find_injuries_statistics(area)
     return jsonify(stats), 201 if stats else 404
 
 # TODO: לבדוק מה חוזר אם יש מידע ריק

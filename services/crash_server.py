@@ -7,7 +7,7 @@ from services.logger import log_info, log_error
 def find_crash_by_area(area):
     client, db = get_db()
     try:
-        crashs = list(db['crash information'].find({'beat': area}, {'_id': 0, 'injuries_info': 0}))
+        crashs = list(db['crash information'].find({'beat': area}, {'_id': 0}))
         log_info('get all crashs from db')
         return crashs
     except Exception as e:
@@ -60,18 +60,12 @@ def find_crash_by_group(area):
     client, db = get_db()
     try:
         crashs = list(db['crash information'].aggregate([
-        {
-            '$match': {
-                'beat': area
-            }
-        },
-        {
-            '$group': {
-                '_id': '$crash_cause.prim',
-                'total_crashes': {'$sum': 1}
-            }
-        }
+        {'$match': {'beat': area}},
+        {'$group': {
+            '_id': '$crash_cause.prim',
+            'total_crashes': {'$sum': 1}}}
         ]))
+
         log_info('get all crashs from db')
         return crashs
     except Exception as e:
@@ -81,5 +75,25 @@ def find_crash_by_group(area):
     finally:
         client.close()
 
-def find_injuries_statistics():
-    pass
+def find_injuries_statistics(area):
+    client, db = get_db()
+    try:
+        crashs = list(db['crash information'].aggregate([
+            {'$match': {'beat': area}},
+            {'$group': {
+                '_id': None,
+                "total_injuries": {"$sum": "$injuries_info.total"},
+                "fatal_injuries": {"$sum": "$injuries_info.fatal"},
+                "incapacitating": {"$sum": "$injuries_info.incapacitating"},
+                "non_incapacitating": {"$sum": "$injuries_info.non_incapacitating"}
+            }}
+        ]))
+
+        log_info('get all injuries statistics from db')
+        return crashs
+    except Exception as e:
+        log_error(f'action: get all crashs from db, error: {e}')
+        print(f'Error: {e}')
+        return e
+    finally:
+        client.close()

@@ -9,16 +9,16 @@ def parse_date(date_str: str):
 
 def injuries_info(row):
     injuries = {
-        'total': row['INJURIES_TOTAL'],
-        'fatal': row['INJURIES_FATAL'],
-        'incapacitating': row['INJURIES_INCAPACITATING'],
-        'non_incapacitating': row['INJURIES_NON_INCAPACITATING']
+        'total': 0 if row['INJURIES_TOTAL'] == '' else int(row['INJURIES_TOTAL']),
+        'fatal': 0 if row['INJURIES_FATAL'] == '' else int(row['INJURIES_FATAL']),
+        'incapacitating': 0 if row['INJURIES_INCAPACITATING'] == '' else int(row['INJURIES_INCAPACITATING']),
+        'non_incapacitating': 0 if row['INJURIES_NON_INCAPACITATING'] == '' else int(row['INJURIES_NON_INCAPACITATING'])
     }
 
     return injuries
 
 
-def crash_document(row, injuries_info):
+def crash_document(row, injuries):
     crash_cause = {
         'prim': row['PRIM_CONTRIBUTORY_CAUSE'],
         'sec': row['SEC_CONTRIBUTORY_CAUSE']
@@ -30,11 +30,7 @@ def crash_document(row, injuries_info):
         'day_of_week': row['CRASH_DAY_OF_WEEK'],
         'month': row['CRASH_MONTH'],
         'crash_cause': crash_cause,
-        'injuries_info': injuries_info
+        'injuries_info': injuries
     }
 
     return crash
-
-if __name__ == '__main__':
-    t = parse_date('09/22/2023 06:45:00 PM')
-    print(type(t))
