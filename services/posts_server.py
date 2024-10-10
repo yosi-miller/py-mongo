@@ -56,8 +56,30 @@ def find_crash_by_area_and_season(area, date, range_search):
     finally:
         client.close()
 
-def find_crash_by_group():
-    pass
+def find_crash_by_group(area):
+    client, db = get_db()
+    try:
+        crashs = list(db['crash information'].aggregate([
+        {
+            '$match': {
+                'beat': area
+            }
+        },
+        {
+            '$group': {
+                '_id': '$crash_cause.prim',
+                'total_crashes': {'$sum': 1}
+            }
+        }
+        ]))
+        log_info('get all crashs from db')
+        return crashs
+    except Exception as e:
+        log_error(f'action: get all crashs from db, error: {e}')
+        print(f'Error: {e}')
+        return e
+    finally:
+        client.close()
 
 def find_injuries_statistics():
     pass

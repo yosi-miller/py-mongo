@@ -14,9 +14,9 @@ def get_crash_by_area_and_season(area, date, range_search):
     return jsonify(posts), 201 if posts else 404
 
 
-@crash_bp.route('/group/', methods=['GET'])
-def get_crash_by_group():
-    posts = find_crash_by_group()
+@crash_bp.route('/group/<string:area>/', methods=['GET'])
+def get_crash_by_group(area):
+    posts = find_crash_by_group(area)
     return jsonify(posts), 201 if posts else 404
 
 #  Statistics on injuries
