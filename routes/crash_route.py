@@ -26,3 +26,5 @@ def get_injuries_statistics(area):
     return jsonify(stats), 201 if stats else 404
 
 # TODO: לבדוק מה חוזר אם יש מידע ריק
+
+query = 3
