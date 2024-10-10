@@ -6,5 +6,5 @@ def get_db():
     :return:
     """
     client = MongoClient('localhost', 27017)
-    db = client.pymongo # create database
+    db = client.test_week_5 # create database
     return client, db
