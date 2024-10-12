@@ -1,70 +1,76 @@
-from datetime import datetime
-
-from database.model import injuries_info, crash_document
-from repository.csv_repository import read_csv
-from repository.query_repository import fetch_crash_data_by_period, aggregate_crashes_by_cause
+from repository.query_repository import fetch_crash_data_by_period, aggregate_crashes_by_cause, \
+    aggregate_injuries_statistics, fetch_crash_by_area
 from tests.conftest import crash_db_collection, populate_crash_db
 
 
-def test_insert_crash(crash_db_collection):
-    csv_path = 'C:\\Users\y0504\Desktop\Week 5(10-10)\data\Traffic_Crashes_-_Crashes - 20k rows.csv'
-
-    csv_reader = read_csv(csv_path)
-    row = next(csv_reader)
-
-    injuries_document = injuries_info(row)
-    document = crash_document(row, injuries_document)
-    crash_db_collection.insert_one(document)
-
-    assert document is not None
-    assert crash_db_collection.count_documents({}) == 1
-
-def test_print_db_content(crash_db_collection, populate_crash_db):
-    all_crashes = list(crash_db_collection.find({}))
-    print(f"All crashes in DB: {all_crashes}")
-    assert len(all_crashes) == 3
-
-def test_find_crash_by_area(crash_db_collection):
-    pass
-
+def test_insert_crash(crash_db_collection, populate_crash_db):
+    assert crash_db_collection.count_documents({}) > 1
+    assert crash_db_collection.count_documents({}) == 27
 
 # WARRING: from hear writer with gpt
-def test_fetch_crash_data_by_period(crash_db_collection, populate_crash_db):
-    # Ensure the fixture runs
-    populate_crash_db
+def test_find_crash_by_area(init_db, populate_crash_db):
+    # הכנת נתוני בדיקה
+    test_area = "422"
 
-    # Test for a day range
-    result = fetch_crash_data_by_period("A1", "10-01-2024", "day", crash_db_collection)
-    print(f"Result for day range: {result}")  # הוספת הדפסה לצורך ניפוי שגיאות
-    assert result["total_crashes"] == 1
-    assert result["start_date"] == datetime(2024, 10, 1)
-    assert result["end_date"] == datetime(2024, 10, 2)
+    result = fetch_crash_by_area(test_area, init_db, 'crash_test')
 
-    # Test for a week range
-    result = fetch_crash_data_by_period("A1", "09-28-2024", "week", crash_db_collection)
-    print(f"Result for week range: {result}")  # הוספת הדפסה לצורך ניפוי שגיאות
-    assert result["total_crashes"] == 3
-    assert result["start_date"] == datetime(2024, 9, 28)
-    assert result["end_date"] == datetime(2024, 10, 5)
+    assert isinstance(result, list), "The result should be a list"
+    assert len(result) > 0, f"No crashes found for area {test_area}"
 
-    # בדיקת תוכן מסד הנתונים
-    all_crashes = list(crash_db_collection.find({}))
-    print(f"All crashes in DB: {all_crashes}")  # הוספת הדפסה לצורך ניפוי שגיאות
+def test_fetch_crash_data_by_period(init_db, populate_crash_db):
+    # Test for a specific day
+    result = fetch_crash_data_by_period("422", "11-11-2023", "day", init_db, 'crash_test')
+    assert result["total_crashes"] == 2
+    assert result["range_search"] == "day"
+    assert result["area"] == "422"
+    assert (result["end_date"] - result["start_date"]).days == 1
 
+    # Test for a week
+    result = fetch_crash_data_by_period("422", "11-22-2023", "week", init_db, 'crash_test')
+    assert result["total_crashes"] > 0
+    assert result["range_search"] == "week"
+    assert (result["end_date"] - result["start_date"]).days == 7
 
-def test_aggregate_crashes_by_cause(crash_db_collection, populate_crash_db):
-    result = aggregate_crashes_by_cause("A1", crash_db_collection)
-
-    # נבדוק שיש אגרגציה לפי סיבת התאונה
-    assert len(result) == 2  # 2 סיבות עיקריות - Speeding, Distraction
-
-    # נוודא את המספרים
-    speeding = next(item for item in result if item['_id'] == "Speeding")
-    assert speeding['total_crashes'] == 2
-
-    distraction = next(item for item in result if item['_id'] == "Distraction")
-    assert distraction['total_crashes'] == 1
+    # Test for a month
+    result = fetch_crash_data_by_period("422", "11-11-2023", "month", init_db, 'crash_test')
+    assert result["total_crashes"] > 0
+    assert result["range_search"] == "month"
+    assert (result["end_date"] - result["start_date"]).days == 30
 
 
-def test_aggregate_injuries_statistics(crash_db_collection):
-    pass
+def test_aggregate_crashes_by_cause(init_db, populate_crash_db):
+    result = aggregate_crashes_by_cause("422", init_db, 'crash_test')
+
+    assert len(result) > 0
+
+    # Check if the result is properly formatted
+    for item in result:
+        assert '_id' in item
+        assert 'total_crashes' in item
+        assert isinstance(item['total_crashes'], int)
+
+    # Check if the total crashes match the sum of individual causes
+    total_crashes = sum(item['total_crashes'] for item in result)
+    db_total = init_db['crash_test'].count_documents({'beat': '422'})
+    assert total_crashes == db_total
+
+
+def test_aggregate_injuries_statistics(init_db, populate_crash_db):
+    result = aggregate_injuries_statistics("422", init_db, 'crash_test')
+
+    assert len(result) == 1  # Should return one aggregated result
+
+    injuries = result[0]
+    assert 'total_injuries' in injuries
+    assert 'fatal_injuries' in injuries
+    assert 'incapacitating' in injuries
+    assert 'non_incapacitating' in injuries
+
+    # Check if the total injuries is the sum of the other categories
+    total = injuries['fatal_injuries'] + injuries['incapacitating'] + injuries['non_incapacitating']
+    assert injuries['total_injuries'] == total
+
+    # Ensure all injury counts are non-negative
+    for key, value in injuries.items():
+        if key != '_id':
+            assert value >= 0

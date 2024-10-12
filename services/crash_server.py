@@ -1,14 +1,14 @@
 
 from database.connect import get_db
 from repository.query_repository import fetch_crash_data_by_period, aggregate_crashes_by_cause, \
-    aggregate_injuries_statistics
+    aggregate_injuries_statistics, fetch_crash_by_area
 from services.logger import log_info, log_error
 
 
 def find_crash_by_area(area):
     client, db = get_db()
     try:
-        crashs = list(db['crash information'].find({'beat': area}, {'_id': 0}))
+        crashs = fetch_crash_by_area(area, db, 'crash information')
         log_info('get all crashs from db')
         return crashs
     except Exception as e:
@@ -23,7 +23,7 @@ def find_crash_by_area_and_season(area, date, range_search):
     client, db = get_db()
 
     try:
-        result = fetch_crash_data_by_period(area, date, range_search, db)
+        result = fetch_crash_data_by_period(area, date, range_search, db, 'crash information')
         log_info('get crashs from db by area and season')
         return result
 
@@ -38,7 +38,7 @@ def find_crash_by_area_and_season(area, date, range_search):
 def find_crash_by_group(area):
     client, db = get_db()
     try:
-        crashs = aggregate_crashes_by_cause(area, db)
+        crashs = aggregate_crashes_by_cause(area, db, 'crash information')
         log_info('get all crashs from db')
         return crashs
     except Exception as e:
@@ -51,7 +51,7 @@ def find_crash_by_group(area):
 def find_injuries_statistics(area):
     client, db = get_db()
     try:
-        crashs = aggregate_injuries_statistics(area, db)
+        crashs = aggregate_injuries_statistics(area, db, 'crash information')
         log_info('get all injuries statistics from db')
         return crashs
     except Exception as e:

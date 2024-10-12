@@ -20,7 +20,6 @@ init_crash_information_from_csv()
 
 @app.route('/home')
 def home():
-    # TODO: להוסיף אפשרות להניס משתמש לחיפוש פוסטים
     return render_template(
         'index.html')
 
